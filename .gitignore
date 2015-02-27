@@ -1,6 +1,10 @@
 #SVN directory files
 .svn/
 
+#temporary 
+.tmp
+.tmp.c
+
 # Object files
 *.o
 *.ko

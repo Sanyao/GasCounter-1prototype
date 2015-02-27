@@ -16,7 +16,6 @@ volatile uint8_t    eeprom_buffer_overflow=0; //информация о переполнении буфера
 
 
 
-
 uint8_t CNT_MEM_WritePhoneToEEPROM (unsigned char* phone) // store phone in eeprom
 {
   uint32_t eepoint; // addres
