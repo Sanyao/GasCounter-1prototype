@@ -55,8 +55,8 @@ int main()
   NVIC_EnableIRQ(RTC_WKUP_IRQn);        // enable rtc wkup interrupt
   NVIC_EnableIRQ(USART1_IRQn);
   __enable_irq();                       // global enable interrupts
-     needTX=ON; 
-     needTX_Alarm = ON;  // test alarm sms
+     needTX=OFF; 
+     needTX_Alarm = OFF;  // test alarm sms
      GPIO_HIGH(LED_PORT,LED2_PIN); // LED for info
      CNT_DummyDelay(500000);  //for sleep unchange ^) // first set
      GPIO_LOW(LED_PORT,LED2_PIN); // LED for info

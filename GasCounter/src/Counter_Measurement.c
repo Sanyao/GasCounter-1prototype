@@ -185,9 +185,13 @@ void CNT_GetVoltages(void)
     TemperatureInternal = (int16_t)( temperature_C );
     Volt_TSENS = tempAVG;
     
-    /*
-    #define VOLTKOEFF(b,a)          b = (uint16_t)((float)a*( (float)Volt_VCC/(float)4095.0) * (float)33.0/ (float)22.0); // for millivolts ADC result*/
+    /* Здесь костыль с коэффициентом , учитывающим входное сопротивление АЦП
+       контроллера. Когда будет ОУ на входе - этот коэффициент будет не нужен 
+       koeffRAIN рассчитывается отдельной процедурой при общении с gsm модулем
+       по результатам его ответа на запрос напряжения питания.
+    */
     koeff = ((float)Volt_VCC/(float)4096.0) * 33.001 * koeffRAIN / 21.501;
+
    
     ADC_Result = Volts_Measurement(4);
     Volt_SOBAT = (uint16_t)(koeff*ADC_Result); //
@@ -300,7 +304,9 @@ void CNT_MGMT_GetRAIN(void) // расчет коэффициента для АЦП
   if ( (vsupply > 3500) && (Volt_GSMMO > 2000))
       { koeffRAIN = koeffRAIN* ((float)vsupply / (float)Volt_GSMMO);
       }
-  }
+  if (koeffRAIN > 1.8) koeffRAIN = 1.8;
+  if (koeffRAIN < 1.5) koeffRAIN = 1.5;
+}
   
   
 void CNT_MGMT_ExtLinesVolts( uint16_t *ChanList, uint32_t *VoltList)

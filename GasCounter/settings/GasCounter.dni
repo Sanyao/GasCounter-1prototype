@@ -20,7 +20,7 @@ Stop=1
 Freq=10000000
 MultiCoreRunAll=1
 [DebugChecksum]
-Checksum=-1776592558
+Checksum=-855234509
 [Exceptions]
 StopOnUncaught=_ 0
 StopOnThrow=_ 0
@@ -47,6 +47,9 @@ ITMportsEnable=0
 ITMportsTermIO=0
 ITMportsLogFile=0
 ITMlogFile=$PROJ_DIR$\ITM.log
+[SfrWindow]
+Show=1 1
+Sort=4 0
 [struct_types]
 Fmt0=RTC_DateTypeDef-RTC_Date	3	0
 Fmt1=RTC_DateTypeDef-RTC_Month	3	0
@@ -94,7 +97,8 @@ SumSortOrder=0
 [Disassemble mode]
 mode=0
 [Breakpoints2]
-Count=0
+Bp0=_ 1 "EMUL_CODE" "{$PROJ_DIR$\src\Counter_Measurement.c}.193.5" 0 0 1 "" 0 "" 0
+Count=1
 [Log file]
 LoggingEnabled=_ 0
 LogFile=_ ""
@@ -115,6 +119,3 @@ Mode=3
 Graph=0
 Symbiont=0
 Exclusions=
-[SfrWindow]
-Show=1 1
-Sort=4 0
