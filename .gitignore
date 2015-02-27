@@ -1,3 +1,6 @@
+#SVN directory files
+.svn/
+
 # Object files
 *.o
 *.ko
