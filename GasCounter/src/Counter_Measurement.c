@@ -301,7 +301,7 @@ void CNT_MGMT_GetRAIN(void) // расчет коэффициента для АЦП
   while (  (at_in[strpoint++]!=',') && (at_in[strpoint] != 0x00) ) ; // find first comma
   while (  (at_in[strpoint++]!=',') && (at_in[strpoint] != 0x00) ) ; // find second comma
   vsupply = atoi( (char const*)&at_in[strpoint]);
-  if ( (vsupply > 3500) && (Volt_GSMMO > 2000))
+  if ( (vsupply > 3500) && (Volt_GSMMO > 2000)) // если имеем больменее достоверные данные о напряжениях, измеренных CPU и GSM
       { koeffRAIN = koeffRAIN* ((float)vsupply / (float)Volt_GSMMO);
       }
   if (koeffRAIN > 1.8) koeffRAIN = 1.8;

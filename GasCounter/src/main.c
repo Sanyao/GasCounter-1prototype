@@ -55,8 +55,8 @@ int main()
   NVIC_EnableIRQ(RTC_WKUP_IRQn);        // enable rtc wkup interrupt
   NVIC_EnableIRQ(USART1_IRQn);
   __enable_irq();                       // global enable interrupts
-     needTX=OFF; 
-     needTX_Alarm = OFF;  // test alarm sms
+     needTX=ON; 
+     needTX_Alarm = ON;  // test alarm sms
      GPIO_HIGH(LED_PORT,LED2_PIN); // LED for info
      CNT_DummyDelay(500000);  //for sleep unchange ^) // first set
      GPIO_LOW(LED_PORT,LED2_PIN); // LED for info
@@ -88,12 +88,8 @@ int main()
     {   CNT_GetVoltages(); // получим напряжения для анализа
       
         if (needTX_Alarm==ON)  // alarm info TX - immediatelly TX with ionistor charge if needed
-        { while (Volt_INSTR < VOLTIONSTRMIN) CNT_PWR_ChgIonstr(); // если напруги ионистора мало, charge ionistor from LiBat 
-          if (CNT_GSM_Module_ON()==ON) 
-              { if ( CNT_GSM_SendAlarmSMS() == ON ) needTX_Alarm=OFF; // если передача смс успешна, то сбрасываем флаги
-              }        
-        } // закончили передачу алама  
-    
+          while ( !(CNT_GSM_SendAlarmSMS() == ON) ) {;} // попытка передавать аларм до достижения результата
+          
         if (needTX==ON)  //если есть задача на передачу регулярного сообщения
         { if (Volt_INSTR > VOLTIONSTRMIN) // если было достаточно напряжения на ионисторе при последнем измерении (в процедуре передачи смс)
           {  if (CNT_GSM_Module_ON()== ON) // и если успешно включили жсм модуль, или он ранее был включен

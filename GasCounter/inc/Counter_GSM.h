@@ -25,7 +25,8 @@ typedef enum
 {                              // для парсинга ответов от жсм. 
      AT_ERROR      =       0x00, /*!< answer error from module */
      AT_OK         =       0x01, /*!< answer OK from module */
-     AT_UNDEFINED  =       0x02  // в ответе нет ни Error ни OK или нет ответа
+     AT_UNDEFINED  =       0x02,  // в ответе нет ни Error ни OK или нет ответа
+     AT_NOANSWER   =       0x04       
 }AT_Answer;
 
 

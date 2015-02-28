@@ -72,99 +72,10 @@ uint16_t CNT_GSM_SendDefaultSMS(void) // send sms with default params
 
     uint16_t result = OFF;
     
-    if (CNT_GSM_Module_ON()== ON) 
-     {  CNT_UART_state (ON);
-        put_atcmd("AT");
-        CNT_DummyDelay(70000); // delay x10 nops - debug
-        get_string();
-        
-        put_atcmd("ATE1");
-        CNT_DummyDelay(70000); // delay x10 nops - debug
-        get_string();
-        
-        /*put_atcmd("AT+GSV"); // simcom info
-        CNT_DummyDelay(70000); // delay x10 nops - debug
-        get_string();
-        */
-        
-        /*put_atcmd("AT+CGID"); // sim group id
-        CNT_DummyDelay(70000); // delay x10 nops - debug
-        get_string();
-        
-        put_atcmd("AT+CSPN"); // sim service provider name
-        CNT_DummyDelay(70000); // delay x10 nops - debug
-        get_string();
-        */
-        
-        /*put_atcmd("AT+CLTS=1"); // local timestamp mode
-        CNT_DummyDelay(1000000); // delay x10 nops - debug
-        get_string();*/
-                
-        put_atcmd("AT+CBC");  // read supply voltage Voltgsm
-        CNT_GetVoltages();
-        CNT_DummyDelay(100000); // delay x10 nops - debug
-        get_string();  
-        CNT_MGMT_GetRAIN(); // get adc correction
-        CNT_GetVoltages(); 
-        CNT_GPIO_CheckChannel();   // check channel circuit
-                
-        put_atcmd("AT+CREG?");  // registered in network?
-        CNT_DummyDelay(100000); // delay x10 nops - debug
-        get_string();
-        
-        put_atcmd("AT+CSQ");   // Signal Quality?
-        CNT_DummyDelay(100000); // delay x10 nops - debug
-        get_string();
-        
-        put_atcmd("AT+GSN");    // IMEI request
-        CNT_DummyDelay(300000); // delay x10 nops - debug
-        get_string();  // get imei
-     
-        //put_atcmd("AT+CCLK?");    // current clock request - не работает - оператор редко передает время.
-        //CNT_DummyDelay(300000); // delay x10 nops - debug
-        //get_string();  // get clock
-        
-        put_atcmd("AT+CMTE?");    // current temp request
-        CNT_DummyDelay(300000); // delay x10 nops - debug
-        get_string();  // get temp
-
-        
-        put_atcmd("AT+CMGD=1,4");  // delete !!!ALL!!! SMS from sim
-        CNT_DummyDelay(100000); // delay x10 nops - debug
-        get_string();
-        
-        put_atcmd("AT+CMGF=1"); // select SMS format - text
-        CNT_DummyDelay(300000); // delay x10 nops - debug
-        get_string();        
-        
-        /*put_atcmd("AT+CSMP=?");
-        CNT_DummyDelay(300000); // delay x10 nops - debug
-        get_string();  // get ok
-         */      
-          
-        put_atcmd("AT+CSMP=49,169,0,0");  // sms delivery request config
-        CNT_DummyDelay(300000); // delay x10 nops - debug
-        get_string();  // get ok
- 
-        /*put_atcmd("AT+CNMI=2,1,0,1,0"); // configere new message actions 
-        CNT_DummyDelay(300000); // delay x10 nops - debug
-        get_string();  // get ok
-        CNT_DummyDelay(30); // delay x10 nops - debug
-        */
-        
-       /* put_atcmd("ATD*100#");    // current balance request - для мегафона не работает стандартный #100#
-                                  // на остальных операторах - ок. #100# возвращает баланс латиницей
-        CNT_DummyDelay(1000000); // delay x10 nops - debug
-        get_string();  // get balance
-        CNT_DummyDelay(10000000); // delay x10 nops - debug
-        get_string();  // get balance
-       */ 
+   
         CNT_GSM_CreateSMSText(SMSVAR_DEF);
         result = CNT_GSM_PutSMS((unsigned char*)currentphonenumber, (unsigned char*)smstext); 
-         
-     }
        
-    CNT_UART_state (OFF);  
     return result; 
                   
 }
@@ -175,27 +86,115 @@ uint16_t CNT_GSM_PutSMS(unsigned char* phone, unsigned char* smstext)  // подать
         uint16_t result = OFF;  // результат отправки
         uint32_t waitingtime; 
         
-        put_atcmd_noCRLF("AT+CMGS=");
-        put_atcmd_noCRLF(phone);
-        //put_atcmd_noCRLF("\"");
-        put_char(CR);
+        if (CNT_GSM_Module_ON()== ON) 
+        { CNT_UART_state (ON);
+          put_atcmd("AT");
+          CNT_DummyDelay(70000); // delay x10 nops - debug
+          get_string();
+        
+          put_atcmd("ATE1");
+          CNT_DummyDelay(70000); // delay x10 nops - debug
+          get_string();
+        
+          /*put_atcmd("AT+GSV"); // simcom info
+          CNT_DummyDelay(70000); // delay x10 nops - debug
+          get_string();
+          */
+        
+          /*put_atcmd("AT+CGID"); // sim group id
+          CNT_DummyDelay(70000); // delay x10 nops - debug
+          get_string();
+        
+          put_atcmd("AT+CSPN"); // sim service provider name
+          CNT_DummyDelay(70000); // delay x10 nops - debug
+          get_string();
+          */
+        
+          /*put_atcmd("AT+CLTS=1"); // local timestamp mode
+          CNT_DummyDelay(1000000); // delay x10 nops - debug
+          get_string();*/
+                
+          put_atcmd("AT+CBC");  // read supply voltage Voltgsm
+          CNT_GetVoltages();
+          CNT_DummyDelay(100000); // delay x10 nops - debug
+          get_string();  
+          CNT_MGMT_GetRAIN(); // get adc correction
+          CNT_GetVoltages(); 
+          CNT_GPIO_CheckChannel();   // check channel circuit
+                
+          put_atcmd("AT+CREG?");  // registered in network?
+          CNT_DummyDelay(100000); // delay x10 nops - debug
+          get_string();
+        
+          put_atcmd("AT+CSQ");   // Signal Quality?
+          CNT_DummyDelay(100000); // delay x10 nops - debug
+          get_string();
+        
+          put_atcmd("AT+GSN");    // IMEI request
+          CNT_DummyDelay(300000); // delay x10 nops - debug
+          get_string();  // get imei
+     
+          //put_atcmd("AT+CCLK?");    // current clock request - не работает - оператор редко передает время.
+          //CNT_DummyDelay(300000); // delay x10 nops - debug
+          //get_string();  // get clock
+        
+          put_atcmd("AT+CMTE?");    // current temp request
+          CNT_DummyDelay(300000); // delay x10 nops - debug
+          get_string();  // get temp
+
+        
+          put_atcmd("AT+CMGD=1,4");  // delete !!!ALL!!! SMS from sim
+          CNT_DummyDelay(100000); // delay x10 nops - debug
+          get_string();
+        
+          put_atcmd("AT+CMGF=1"); // select SMS format - text
+          CNT_DummyDelay(300000); // delay x10 nops - debug
+          get_string();        
+        
+          /*put_atcmd("AT+CSMP=?");
+          CNT_DummyDelay(300000); // delay x10 nops - debug
+          get_string();  // get ok
+          */      
           
-        waitingtime = 30;
-        while ( (get_char() != '>')   &&(waitingtime-- > 1 )  ) {;}// wait for welcome
+          put_atcmd("AT+CSMP=49,169,0,0");  // sms delivery request config
+          CNT_DummyDelay(300000); // delay x10 nops - debug
+          get_string();  // get ok
+ 
+          /*put_atcmd("AT+CNMI=2,1,0,1,0"); // configere new message actions 
+          CNT_DummyDelay(300000); // delay x10 nops - debug
+          get_string();  // get ok
+          CNT_DummyDelay(30); // delay x10 nops - debug
+          */
         
-        if (waitingtime ==0 ) return result;
-        put_atcmd_noCRLF(smstext);
-        put_char(CTRLZ);
-        put_char(CR);
+          /* put_atcmd("ATD*100#");    // current balance request - для мегафона не работает стандартный #100#
+                                    // на остальных операторах - ок. #100# возвращает баланс латиницей
+          CNT_DummyDelay(1000000); // delay x10 nops - debug
+          get_string();  // get balance
+          CNT_DummyDelay(10000000); // delay x10 nops - debug
+          get_string();  // get balance
+          */ 
+          
+          put_atcmd_noCRLF("AT+CMGS=");
+          put_atcmd_noCRLF(phone);
+          //put_atcmd_noCRLF("\"");
+          put_char(CR);
+          
+          waitingtime = 30;
+          while ( (get_char() != '>')   &&(waitingtime-- > 1 )  ) {;}// wait for welcome
         
-        CNT_DummyDelay(400000); // delay x10 nops - debug
-        get_string();  // ждем подтверждения с референсом смски. "+CMGS: номер" при успешной отправке
+          if (waitingtime ==0 ) return result;
+          put_atcmd_noCRLF(smstext);
+          put_char(CTRLZ);
+          put_char(CR);
+        
+          CNT_DummyDelay(400000); // delay x10 nops - debug
+          get_string();  // ждем подтверждения с референсом смски. "+CMGS: номер" при успешной отправке
          
          
         
-        waitingtime = 10; // wait delivery report
+          waitingtime = 5; // wait delivery report
         
-        while ((waitingtime-- >0) && (result==OFF) ) 
+          while ((waitingtime-- >0) && (result==OFF) ) 
           {     CNT_DummyDelay(100000); // delay x10 nops - debug
                 get_string();
                 if (  (at_in[2] == '+') &&
@@ -210,8 +209,8 @@ uint16_t CNT_GSM_PutSMS(unsigned char* phone, unsigned char* smstext)  // подать
         
         // waiting command SMS 
         
-        
-        
+          CNT_UART_state (OFF);  
+        }
         
         return result;
 }
@@ -249,26 +248,16 @@ void CNT_GSM_CreateSMSText(uint16_t variant)
    {
     case SMSVAR_DEF:
      {  concat(smstext, head);
-        itoa(Pulse1Overall, hs1); concat(smstext, hs1); concat(smstext, slash);
-        itoa(Pulse2Overall, hs1); concat(smstext, hs1); concat(smstext, slash);
-        itoa(Pulse3Overall, hs1); concat(smstext, hs1); concat(smstext, comma);
-        
-        concat(smstext, alcnt);
-        itoa(Alarms1Count, hs1); concat(smstext, hs1); concat(smstext, slash);
-        itoa(Alarms2Count, hs1); concat(smstext, hs1); concat(smstext, comma);
-        
-        concat(smstext, vlts);
-        itoa(Volt_VCC,   hs1); concat(smstext, hs1); concat(smstext, slash);
-        itoa(Volt_LIBAT, hs1); concat(smstext, hs1); concat(smstext, slash);
-        itoa(Volt_INSTR, hs1); concat(smstext, hs1); concat(smstext, slash);
-        itoa(Volt_GSMMO, hs1); concat(smstext, hs1); concat(smstext, slash);
-        itoa(Volt_SOBAT, hs1); concat(smstext, hs1); concat(smstext, comma);
         break;
      }
    
    case SMSVAR_Alarm:
     {
         concat(smstext, headalarm);
+        break;
+    }
+  }
+
         itoa(Pulse1Overall, hs1); concat(smstext, hs1); concat(smstext, slash);
         itoa(Pulse2Overall, hs1); concat(smstext, hs1); concat(smstext, slash);
         itoa(Pulse3Overall, hs1); concat(smstext, hs1); concat(smstext, comma);
@@ -283,11 +272,7 @@ void CNT_GSM_CreateSMSText(uint16_t variant)
         itoa(Volt_INSTR, hs1); concat(smstext, hs1); concat(smstext, slash);
         itoa(Volt_GSMMO, hs1); concat(smstext, hs1); concat(smstext, slash);
         itoa(Volt_SOBAT, hs1); concat(smstext, hs1); concat(smstext, comma);
-        break;
-    }
-  }
-
-
+  
         concat(smstext, openshort);  
         itoa(channel_opened, hs1); concat(smstext, hs1); concat(smstext, slash);
         itoa(channel_shorted, hs1); concat(smstext, hs1); concat(smstext, comma);
@@ -302,66 +287,11 @@ uint16_t CNT_GSM_SendAlarmSMS   (void)  // immediatelly charge battery and send 
 {
     //int32_t waitingtime; // для таймаута
     //unsigned char* phone = DEFPHONENUMBER;
-
-    uint16_t result = OFF;
-    
-    if (CNT_GSM_Module_ON()== ON) 
-     {  CNT_UART_state (ON);
-        put_atcmd("AT");
-        CNT_DummyDelay(1000000); // delay x10 nops - debug
-        get_string();
-        
-        put_atcmd("ATE0");
-        CNT_DummyDelay(1000000); // delay x10 nops - debug
-        get_string();
-        
-        /*put_atcmd("AT+CLTS=1"); // local timestamp mode
-        CNT_DummyDelay(1000000); // delay x10 nops - debug
-        get_string();*/
-                
-        put_atcmd("AT+CREG?");  // registered in network?
-        CNT_DummyDelay(1000000); // delay x10 nops - debug
-        get_string();
-        
-        put_atcmd("AT+CSQ");   // Signal Quality?
-        CNT_DummyDelay(1000000); // delay x10 nops - debug
-        get_string();
-        
-        put_atcmd("AT+GSN");    // IMEI request
-        CNT_DummyDelay(1000000); // delay x10 nops - debug
-        get_string();  // get imei
-          
-        CNT_GetVoltages();
-        put_atcmd("AT+CBC");  // read supply voltage Voltgsm
-        CNT_DummyDelay(1000000); // delay x10 nops - debug
-        get_string();  
-        CNT_MGMT_GetRAIN(); // get adc correction
-        CNT_GetVoltages(); 
-        CNT_GPIO_CheckChannel();   // check channel circuit
-    
-   
-        
-        put_atcmd("AT+CMGD=1,4");  // delete !!!ALL!!! SMS from sim
-        CNT_DummyDelay(1000000); // delay x10 nops - debug
-        get_string();
-       
-            
-        put_atcmd("AT+CMGF=1"); // select SMS format - text
-        CNT_DummyDelay(1000000); // delay x10 nops - debug
-        get_string(); 
-        
-        put_atcmd("AT+CSMP=49,169,0,0");  // sms delivery request config
-        CNT_DummyDelay(300000); // delay x10 nops - debug
-        get_string();  // get ok
-       
-
-        CNT_GSM_CreateSMSText(SMSVAR_Alarm);
-        result = CNT_GSM_PutSMS(currentphonenumber, (unsigned char*)smstext); 
-     }
-       
-    CNT_UART_state (OFF);  
-    return result; 
-  
+    //uint16_t result = OFF;
+    while (Volt_INSTR < VOLTIONSTRMIN) {CNT_PWR_ChgIonstr();} // если напруги ионистора мало, charge ionistor from LiBat 
+    CNT_GSM_CreateSMSText(SMSVAR_Alarm);
+    return CNT_GSM_PutSMS(currentphonenumber, (unsigned char*)smstext); 
+    //return result;  
 }
 
 
@@ -371,10 +301,10 @@ AT_Answer CNT_GSM_GetAnswer()    // ожидание ответа от модул и возврат error Ok
     
     get_string(); // ждем строку ответа от жсм модуля.
     // теперь проверим, есть ли в ней слово ERROR
-    if (strstr ( (char*)at_in, "OK") > 0) {return AT_OK;} // успешный ответ
-    if (strstr ( (char*)at_in, "ERROR") > 0) {return AT_ERROR;} // обнаружена ошибка
+    if (strstr ( (char*)at_in, "OK") > 0) return AT_OK; // успешный ответ
+    if (strstr ( (char*)at_in, "ERROR") > 0) return AT_ERROR; // обнаружена ошибка
     
- 
+    if (at_in[0] == 0x00 ) return AT_NOANSWER; // ??? если нет ответа. не уверен что будет так работать нормально. Нужно проверить 
     return AT_UNDEFINED; // нет ответа или в ответе нет ни Error ни Ok
   }
 
