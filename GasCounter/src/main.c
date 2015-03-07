@@ -47,8 +47,7 @@ uint16_t waitingcommandSMStime = DEFWAITINGCOMMANDSMSTIME;
 int main()
 {
   int i, j;
- 
- 
+  
   __disable_irq();
   SYSCFG_DeInit();                      // reset congiguration
   CNT_Init();                           // first setup for counter systems
@@ -88,7 +87,9 @@ int main()
     {   CNT_GetVoltages(); // получим напряжения для анализа
       
         if (needTX_Alarm==ON)  // alarm info TX - immediatelly TX with ionistor charge if needed
-          while ( !(CNT_GSM_SendAlarmSMS() == ON) ) {;} // попытка передавать аларм до достижения результата
+          { while ( !(CNT_GSM_SendAlarmSMS() == ON) ) {;} // попытка передавать аларм до достижения результата
+            needTX_Alarm=OFF ; // сброс флага аларма
+          }
           
         if (needTX==ON)  //если есть задача на передачу регулярного сообщения
         { if (Volt_INSTR > VOLTIONSTRMIN) // если было достаточно напряжения на ионисторе при последнем измерении (в процедуре передачи смс)

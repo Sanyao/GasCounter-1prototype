@@ -51,7 +51,6 @@ uint16_t CNT_GSM_Module_ON(void)
     }
 }
 
-
 // GSM module power OFF
 void CNT_GSM_Module_OFF(void)
 {
@@ -64,14 +63,13 @@ void CNT_GSM_Module_OFF(void)
 }
 
 
-
+// отсылка регулярного смс
 uint16_t CNT_GSM_SendDefaultSMS(void) // send sms with default params
 {   
     //int32_t waitingtime; // для таймаута
     //unsigned char* phone = DEFPHONENUMBER;
 
     uint16_t result = OFF;
-    
    
         CNT_GSM_CreateSMSText(SMSVAR_DEF);
         result = CNT_GSM_PutSMS((unsigned char*)currentphonenumber, (unsigned char*)smstext); 
@@ -176,35 +174,36 @@ uint16_t CNT_GSM_PutSMS(unsigned char* phone, unsigned char* smstext)  // подать
           
           put_atcmd_noCRLF("AT+CMGS=");
           put_atcmd_noCRLF(phone);
-          //put_atcmd_noCRLF("\"");
           put_char(CR);
           
-          waitingtime = 30;
+          waitingtime = 3; // для таймаута ожидания готовности жсм модуля к смсинью
           while ( (get_char() != '>')   &&(waitingtime-- > 1 )  ) {;}// wait for welcome
-        
-          if (waitingtime ==0 ) return result;
-          put_atcmd_noCRLF(smstext);
-          put_char(CTRLZ);
-          put_char(CR);
+          // здесь сделаем таймаут поменьше - чтобы долго не ждал. 
+          if (waitingtime ==0 ) return result; // если не дождались от жсм модуля внятного ответа - возвратим OFF 
+          
+          put_atcmd_noCRLF(smstext); // отправим текст СМС в модуль
+          put_char(CTRLZ); // спецсимвоы завершения текста
+          put_char(CR); // отсылаем смс
         
           CNT_DummyDelay(400000); // delay x10 nops - debug
           get_string();  // ждем подтверждения с референсом смски. "+CMGS: номер" при успешной отправке
-         
-         
-        
+ 
+          
+          
           waitingtime = 5; // wait delivery report
-        
           while ((waitingtime-- >0) && (result==OFF) ) 
           {     CNT_DummyDelay(100000); // delay x10 nops - debug
                 get_string();
-                if (  (at_in[2] == '+') &&
-                      (at_in[3] == 'C') &&   // check CDS receiving - sms delivery report
+                if (  (at_in[2] == '+') &&   // проверим сообщения о доставке
+                      (at_in[3] == 'C') &&   // check +CDS receiving - sms delivery report
                       (at_in[4] == 'D') &&
                       (at_in[5] == 'S')
-                     )
-                  { CNT_TIME_SetTimeFromSMSDeliveryReport();
+                    )
+                  { CNT_TIME_SetTimeFromSMSDeliveryReport(); // если доставка есть, скорректируем врямя из сообщения о доставке
                     result = ON;   // sms sended and delivery
                   }
+                // а тут надо проверить, живой ли еще жсм модуль, не отключился ли например от недостатка питания.
+                
           }
         
         // waiting command SMS 
@@ -215,7 +214,7 @@ uint16_t CNT_GSM_PutSMS(unsigned char* phone, unsigned char* smstext)  // подать
         return result;
 }
 
-
+// создать текст смс в соответствии с его типом variant
 void CNT_GSM_CreateSMSText(uint16_t variant)
 {
   unsigned char  space[] = " "; 
@@ -282,7 +281,7 @@ void CNT_GSM_CreateSMSText(uint16_t variant)
 
 }
 
-
+// отправить смс тревоги. отправляем пока не будет подтверждения о приеме
 uint16_t CNT_GSM_SendAlarmSMS   (void)  // immediatelly charge battery and send sms
 {
     //int32_t waitingtime; // для таймаута
@@ -295,10 +294,9 @@ uint16_t CNT_GSM_SendAlarmSMS   (void)  // immediatelly charge battery and send 
 }
 
 
-
-AT_Answer CNT_GSM_GetAnswer()    // ожидание ответа от модул и возврат error Ok
+// парсинг ответов от SIM900R ------------------ пока в разработке. не используется.
+AT_Answer CNT_GSM_GetAnswer()    // ожидание ответа от модул и возврат error Ok и т.д.
   {
-    
     get_string(); // ждем строку ответа от жсм модуля.
     // теперь проверим, есть ли в ней слово ERROR
     if (strstr ( (char*)at_in, "OK") > 0) return AT_OK; // успешный ответ

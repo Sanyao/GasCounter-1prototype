@@ -150,6 +150,9 @@ void CNT_TIME_SetTimeFromSMSDeliveryReport(void) // Set time from SMS Delivery R
     p=0;
   
     // разбираем пока так... 
+    // ответ по стандарту в виде
+    /* +CDS: 2,10,"+358501234567",145,"95/07/04/13:12:14+04", "95/07/04/13:12:20+04",0 (status report of successful message delivery received)
+    */
     
     // ищем пятую кавычку - дата доставки
     while (*point++ != '"'){;} // первая

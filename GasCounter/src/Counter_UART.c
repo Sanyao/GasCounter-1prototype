@@ -145,11 +145,11 @@ void USART1_IRQHandler(void)
   }
 }
 
-uint8_t get_char(void) //прием данных
+uint8_t get_char(void) //прием данных - один символ
 {
   uint8_t data; //переменная для данных
   int32_t waitingtime; // для таймаута
-  waitingtime = 2000000;
+  waitingtime = 1000000;
   while ( (rx_counter==0) && (waitingtime-- != 0)   );  //если данных нет, ждем
   if (waitingtime <=0 ) return 0;  // стоп на таймауте
   data=rx_buffer[rx_rd_index++]; //берем данные из буфера
@@ -195,7 +195,7 @@ void get_string(void)
   {  rxbyte = get_char();
      if (rxbyte != NULL) at_in[strpoint++] = rxbyte;
      if (strpoint >= MAX_AT_SIZE) strpoint = 0; 
-     if ( (at_in[strpoint-4]=='O' ) &&
+     if ( (at_in[strpoint-4]=='O' ) &&  // ищем особый конец строки если он есть
           (at_in[strpoint-3]=='K' ) &&
           (at_in[strpoint-2]== CR ) &&
           (at_in[strpoint-1]== LF ) )
