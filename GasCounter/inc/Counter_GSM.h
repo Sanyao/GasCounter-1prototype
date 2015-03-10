@@ -32,7 +32,7 @@ typedef enum
 
 // Variant for SMS
 #define SMSVAR_DEF              1       // default operational SMS
-#define SMSVAR_VarnLOWBATT      2       // SMS for low battery alarm
+#define SMSVAR_VarnLOWBATT      2       // SMS for low battery alarm - пока нет
 #define SMSVAR_Alarm            3       // alarm input active!
 
 

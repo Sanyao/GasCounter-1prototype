@@ -8,19 +8,8 @@ UseTrigger=1
 TriggerName=main
 LimitSize=0
 ByteLimit=50
-[Interrupts]
-Enabled=1
-[MemConfig]
-Base=1
-Manual=0
-Ddf=1
-TypeViol=0
-Stop=1
-[Simulator]
-Freq=10000000
-MultiCoreRunAll=1
 [DebugChecksum]
-Checksum=-722384947
+Checksum=2142405845
 [Exceptions]
 StopOnUncaught=_ 0
 StopOnThrow=_ 0
@@ -50,6 +39,17 @@ ITMlogFile=$PROJ_DIR$\ITM.log
 [SfrWindow]
 Show=1 1
 Sort=4 0
+[Interrupts]
+Enabled=1
+[MemConfig]
+Base=1
+Manual=0
+Ddf=1
+TypeViol=0
+Stop=1
+[Simulator]
+Freq=10000000
+MultiCoreRunAll=1
 [struct_types]
 Fmt0=RTC_DateTypeDef-RTC_Date	3	0
 Fmt1=RTC_DateTypeDef-RTC_Month	3	0
@@ -109,8 +109,9 @@ Exclusions=
 [Disassemble mode]
 mode=0
 [Breakpoints2]
-Bp0=_ 1 "EMUL_CODE" "{$PROJ_DIR$\src\Counter_Measurement.c}.193.5" 0 0 1 "" 0 "" 0
-Count=1
+Bp0=_ 1 "EMUL_CODE" "{$PROJ_DIR$\src\Counter_GSM.c}.175.11" 0 0 1 "" 0 "" 0
+Bp1=_ 1 "EMUL_CODE" "{$PROJ_DIR$\src\Counter_GSM.c}.204.21" 0 0 1 "" 0 "" 0
+Count=2
 [Aliases]
 A0=_ "D:\Sanyao\RemoteStorage\Google Диск\IAR System Projects\GasCounter\ext_src\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_gpio.c" ""
 A1=_ "D:\Sanyao\RemoteStorage\Google Диск\IAR System Projects\GasCounter\ext_src\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_rcc.c" ""

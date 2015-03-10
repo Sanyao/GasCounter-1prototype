@@ -15,6 +15,7 @@ uint8_t CNT_PWR_BOOSTER(uint8_t STATE)
     CNT_GPIO_SetPinMode(BATTM_PORT, BOOSTEN_PIN, GPIO_Mode_IN, GPIO_OType_PP, GPIO_PuPd_NOPULL); // off EN pin
   }
     
+  CNT_UART_state (STATE); // заодно вкл-выкл уарт 
   return STATE ; //newState;
 }
 

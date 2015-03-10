@@ -35,15 +35,15 @@ uint16_t CNT_GSM_Module_ON(void)
   /* Check status pin from GSM */
     waitingtime = DYMMYPWRKEYWIDTH*4; // max 4 sec to On
     
-    while (     (GPIO_ReadInputDataBit(SIM_STATUS_PORT, GSM_STATUS_PIN) != 1 )
+    while (     (GPIO_ReadInputDataBit(SIM_STATUS_PORT, GSM_STATUS_PIN) != 1 ) // ждем установки пина STATUS жсм модуля - типа он включен.
             &&  ( waitingtime-- > 1) ) 
     { /* wait*/ }
       
-    if (GPIO_ReadInputDataBit(SIM_STATUS_PORT, GSM_STATUS_PIN) == 1) 
+    if (GPIO_ReadInputDataBit(SIM_STATUS_PORT, GSM_STATUS_PIN) == 1) // если все ок - возвращаем что жсм модуль вкючен
     { 
       return ON;
     }
-    else 
+    else  // а если не поучилось включить - выключим бустер , зажжем светодиод для отладки, и вернем OFF
     {
       GPIO_HIGH(LED_PORT,LED1_PIN); // LED for info
       CNT_PWR_BOOSTER(OFF);
@@ -85,7 +85,7 @@ uint16_t CNT_GSM_PutSMS(unsigned char* phone, unsigned char* smstext)  // подать
         uint32_t waitingtime; 
         
         if (CNT_GSM_Module_ON()== ON) 
-        { CNT_UART_state (ON);
+        { // CNT_UART_state (ON); перенес во включение бустера
           put_atcmd("AT");
           CNT_DummyDelay(70000); // delay x10 nops - debug
           get_string();
@@ -176,7 +176,7 @@ uint16_t CNT_GSM_PutSMS(unsigned char* phone, unsigned char* smstext)  // подать
           put_atcmd_noCRLF(phone);
           put_char(CR);
           
-          waitingtime = 3; // для таймаута ожидания готовности жсм модуля к смсинью
+          waitingtime = 1000; // для таймаута ожидания готовности жсм модуля к смсинью
           while ( (get_char() != '>')   &&(waitingtime-- > 1 )  ) {;}// wait for welcome
           // здесь сделаем таймаут поменьше - чтобы долго не ждал. 
           if (waitingtime ==0 ) return result; // если не дождались от жсм модуля внятного ответа - возвратим OFF 
@@ -191,8 +191,9 @@ uint16_t CNT_GSM_PutSMS(unsigned char* phone, unsigned char* smstext)  // подать
           
           
           waitingtime = 5; // wait delivery report
-          while ((waitingtime-- >0) && (result==OFF) ) 
-          {     CNT_DummyDelay(100000); // delay x10 nops - debug
+          while ((waitingtime-- >0) && (result==OFF) && (Volt_INSTR>VOLTIONISTROFF) ) // пока не передано не таймаут и хватает напряжения 
+          {     CNT_GetVoltages();
+                CNT_DummyDelay(1000); // delay x10 nops - debug
                 get_string();
                 if (  (at_in[2] == '+') &&   // проверим сообщения о доставке
                       (at_in[3] == 'C') &&   // check +CDS receiving - sms delivery report
@@ -206,11 +207,13 @@ uint16_t CNT_GSM_PutSMS(unsigned char* phone, unsigned char* smstext)  // подать
                 
           }
         
-        // waiting command SMS 
+        /*                                                    */
+        /* здесь можно вставить потом ожидание смс с командой */
+        /*                                                    */ 
         
-          CNT_UART_state (OFF);  
+          // CNT_UART_state (OFF);  // отключаем уарт общения с жсм модулем.. - перенес в выключение бустера
         }
-        
+        if (Volt_INSTR<VOLTIONISTROFF) CNT_PWR_BOOSTER(OFF); // если малое напряжение - здесь выключаем бустер 
         return result;
 }
 

@@ -28,6 +28,7 @@
 /* define border params */
 #define VOLTIONSTRMIN 2200 // minimal voltage on ionistor to success GSM session  
 #define VOLTIONSTRGIST 100 // Гистерезис для зарядки 
+#define VOLTIONISTROFF 1800 // предполагаем минимальное значение на ионисторе при котором еще возможна работа. ниже- отключаем и сброс.
 
 
 extern unsigned char at_out[MAX_AT_SIZE];
