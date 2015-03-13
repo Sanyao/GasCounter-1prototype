@@ -83,16 +83,20 @@ uint16_t CNT_GSM_PutSMS(unsigned char* phone, unsigned char* smstext)  // подать
 {
         uint16_t result = OFF;  // результат отправки
         uint32_t waitingtime; 
+        uint16_t smsID = 0; // ID номер смс, присваиваемый при отправке. передаается в ответе +CMGS
+        AT_Answer AnswerStringResult = AT_NULL;
+        //uint16_t i;
         
         if (CNT_GSM_Module_ON()== ON) 
-        { // CNT_UART_state (ON); перенес во включение бустера
+     { // CNT_UART_state (ON); перенес во включение бустера
+          
           put_atcmd("AT");
-          CNT_DummyDelay(70000); // delay x10 nops - debug
-          get_string();
+          CNT_DummyDelay(10000); // delay x10 nops - debug
+          AnswerStringResult = CNT_GSM_GetAnswer();
         
-          put_atcmd("ATE1");
-          CNT_DummyDelay(70000); // delay x10 nops - debug
-          get_string();
+          put_atcmd("ATE0");
+          CNT_DummyDelay(10000); // delay x10 nops - debug
+          AnswerStringResult = CNT_GSM_GetAnswer();
         
           /*put_atcmd("AT+GSV"); // simcom info
           CNT_DummyDelay(70000); // delay x10 nops - debug
@@ -114,40 +118,40 @@ uint16_t CNT_GSM_PutSMS(unsigned char* phone, unsigned char* smstext)  // подать
                 
           put_atcmd("AT+CBC");  // read supply voltage Voltgsm
           CNT_GetVoltages();
-          CNT_DummyDelay(100000); // delay x10 nops - debug
-          get_string();  
+          CNT_DummyDelay(10000); // delay x10 nops - debug
+          AnswerStringResult = CNT_GSM_GetAnswer();
           CNT_MGMT_GetRAIN(); // get adc correction
           CNT_GetVoltages(); 
           CNT_GPIO_CheckChannel();   // check channel circuit
                 
-          put_atcmd("AT+CREG?");  // registered in network?
-          CNT_DummyDelay(100000); // delay x10 nops - debug
-          get_string();
+          put_atcmd("AT+CREG?");  // registered in network? !!! нужна проверка и ожидание регистрации в сети
+          CNT_DummyDelay(10000); // delay x10 nops - debug
+          AnswerStringResult = CNT_GSM_GetAnswer();
         
           put_atcmd("AT+CSQ");   // Signal Quality?
-          CNT_DummyDelay(100000); // delay x10 nops - debug
-          get_string();
+          CNT_DummyDelay(10000); // delay x10 nops - debug
+          AnswerStringResult = CNT_GSM_GetAnswer();
         
           put_atcmd("AT+GSN");    // IMEI request
-          CNT_DummyDelay(300000); // delay x10 nops - debug
-          get_string();  // get imei
+          CNT_DummyDelay(10000); // delay x10 nops - debug
+          AnswerStringResult = CNT_GSM_GetAnswer();
      
           //put_atcmd("AT+CCLK?");    // current clock request - не работает - оператор редко передает время.
           //CNT_DummyDelay(300000); // delay x10 nops - debug
           //get_string();  // get clock
         
           put_atcmd("AT+CMTE?");    // current temp request
-          CNT_DummyDelay(300000); // delay x10 nops - debug
-          get_string();  // get temp
+          CNT_DummyDelay(100000); // delay x10 nops - debug
+          AnswerStringResult = CNT_GSM_GetAnswer();
 
         
           put_atcmd("AT+CMGD=1,4");  // delete !!!ALL!!! SMS from sim
           CNT_DummyDelay(100000); // delay x10 nops - debug
-          get_string();
+          AnswerStringResult = CNT_GSM_GetAnswer();
         
           put_atcmd("AT+CMGF=1"); // select SMS format - text
-          CNT_DummyDelay(300000); // delay x10 nops - debug
-          get_string();        
+          CNT_DummyDelay(100000); // delay x10 nops - debug
+          AnswerStringResult = CNT_GSM_GetAnswer();
         
           /*put_atcmd("AT+CSMP=?");
           CNT_DummyDelay(300000); // delay x10 nops - debug
@@ -155,8 +159,8 @@ uint16_t CNT_GSM_PutSMS(unsigned char* phone, unsigned char* smstext)  // подать
           */      
           
           put_atcmd("AT+CSMP=49,169,0,0");  // sms delivery request config
-          CNT_DummyDelay(300000); // delay x10 nops - debug
-          get_string();  // get ok
+          CNT_DummyDelay(100000); // delay x10 nops - debug
+          AnswerStringResult = CNT_GSM_GetAnswer();
  
           /*put_atcmd("AT+CNMI=2,1,0,1,0"); // configere new message actions 
           CNT_DummyDelay(300000); // delay x10 nops - debug
@@ -176,43 +180,88 @@ uint16_t CNT_GSM_PutSMS(unsigned char* phone, unsigned char* smstext)  // подать
           put_atcmd_noCRLF(phone);
           put_char(CR);
           
-          waitingtime = 1000; // для таймаута ожидания готовности жсм модуля к смсинью
+          GPIO_HIGH(LED_PORT,LED1_PIN); // здесь ждем приглашения - зажжем LED1*****************
+          waitingtime = 100; // для таймаута ожидания готовности жсм модуля к смсинью
           while ( (get_char() != '>')   &&(waitingtime-- > 1 )  ) {;}// wait for welcome
           // здесь сделаем таймаут поменьше - чтобы долго не ждал. 
-          if (waitingtime ==0 ) return result; // если не дождались от жсм модуля внятного ответа - возвратим OFF 
           
+          // *****************************************************************************************************************************************
+          if (waitingtime ==0 ) { // отморгнем вторым отсутствие приглашения длинный - короткий - длинный
+                                  CMT_Misc_LEDIndication(2, 5, 1, 5);
+                                  GPIO_LOW(LED_PORT,LED1_PIN); // погасим первый            
+                                  return result; // если не дождались от жсм модуля внятного ответа - возвратим OFF - светодиод  остается гореть
+                                 } 
+          //********************************************************************************************************************************************
+          
+          GPIO_LOW(LED_PORT,LED1_PIN); // если приглашение пришло - погасим светодиод. Приглашение приходит быстро - иногда светодиод наверное не увидишь********
+         
           put_atcmd_noCRLF(smstext); // отправим текст СМС в модуль
-          put_char(CTRLZ); // спецсимвоы завершения текста
+          put_char(CTRLZ); // спецсимвоы завершения текста смс
           put_char(CR); // отсылаем смс
-        
-          CNT_DummyDelay(400000); // delay x10 nops - debug
-          get_string();  // ждем подтверждения с референсом смски. "+CMGS: номер" при успешной отправке
- 
           
+          GPIO_HIGH(LED_PORT,LED2_PIN); // отправили смс - зажжем второй светодиод************
+          CNT_DummyDelay(100000); // delay x10 nops - debug
           
-          waitingtime = 5; // wait delivery report
+          waitingtime = 10; // для передачи отправки смс в сеть
+          while ( waitingtime-- > 1 ) // ждем положительного ответа после отправки смс в сеть или ошибки
+            {   AnswerStringResult = CNT_GSM_GetAnswer();
+                if (AnswerStringResult==AT_ERROR) break;
+                if (AnswerStringResult==AT_OK   ) // положительный ответ - должен быть номер смс ("+CMGS: номерOK")
+                  { //получим номер смс
+                    smsID = CNT_GSM_GetDigitFromATIN(SMSIDCMGS); 
+                    break;
+                  }
+            }
+          
+          waitingtime = 100; // wait delivery report
           while ((waitingtime-- >0) && (result==OFF) && (Volt_INSTR>VOLTIONISTROFF) ) // пока не передано не таймаут и хватает напряжения 
           {     CNT_GetVoltages();
-                CNT_DummyDelay(1000); // delay x10 nops - debug
-                get_string();
-                if (  (at_in[2] == '+') &&   // проверим сообщения о доставке
-                      (at_in[3] == 'C') &&   // check +CDS receiving - sms delivery report
-                      (at_in[4] == 'D') &&
-                      (at_in[5] == 'S')
-                    )
-                  { CNT_TIME_SetTimeFromSMSDeliveryReport(); // если доставка есть, скорректируем врямя из сообщения о доставке
-                    result = ON;   // sms sended and delivery
-                  }
-                // а тут надо проверить, живой ли еще жсм модуль, не отключился ли например от недостатка питания.
+                //CNT_DummyDelay(2000); // delay x10 nops - debug
+                if (CNT_GSM_GetAnswer() == AT_CDS)   // проверим, есть ли сообщение о доставке check +CDS receiving - sms delivery report
+                   if (smsID ==  CNT_GSM_GetDigitFromATIN(SMSIDCDS) )  // для обновления времени  проверим номер смс, взятый из CMGS
+                        { CNT_TIME_SetTimeFromSMSDeliveryReport(); // если доставка есть, скорректируем врямя из сообщения о доставке 
+                                    //!!!!!!!! отправка может же быть и неуспешной. придет ли отгда CDS или будет таймаут, надо проверить!!!!!!! 
+                          GPIO_LOW(LED_PORT,LED2_PIN); // ок - просто погасим второй светодиод
+                          result = ON;   // sms sended and delivery
+                        }
                 
-          }
+                 // а тут неплохо бы проверить, живой ли еще жсм модуль, не отключился ли например от недостатка питания.
+                
+          }  // тут конец цикла ожидания отчета о доставке
+               
+         
+  // сюда пришли если не дождались отчета об отправке - 
+  // отморгнем этот случай *****************************************************************************************************************************
+                // таймаут:  пригорящем втором - короткий-короткий-длинный
+                if ( waitingtime <= 0) {       
+                                          CMT_Misc_LEDIndication(1, 1, 1, 5);
+                                          GPIO_LOW(LED_PORT,LED2_PIN); // погасим второй  
+                                       }
+                // потеря напряжения:  пригорящем втором - длинный-короткий-длинный 
+                if ( Volt_INSTR<VOLTIONISTROFF) {       
+                                          CMT_Misc_LEDIndication(1, 5, 1, 5);
+                                          GPIO_LOW(LED_PORT,LED2_PIN); // погасим второй  
+                                                }
+  // *************************************************************************************************************************************                              
+                                  
+    
+         
+                                  
+                                  
+                                  
+                                  
+       
         
         /*                                                    */
         /* здесь можно вставить потом ожидание смс с командой */
         /*                                                    */ 
         
           // CNT_UART_state (OFF);  // отключаем уарт общения с жсм модулем.. - перенес в выключение бустера
-        }
+        
+   } // конец передачи 
+                            
+        GPIO_LOW(LED_PORT,LED2_PIN); //  погасим второй светодиод
+
         if (Volt_INSTR<VOLTIONISTROFF) CNT_PWR_BOOSTER(OFF); // если малое напряжение - здесь выключаем бустер 
         return result;
 }
@@ -302,11 +351,16 @@ AT_Answer CNT_GSM_GetAnswer()    // ожидание ответа от модул и возврат error Ok 
   {
     get_string(); // ждем строку ответа от жсм модуля.
     // теперь проверим, есть ли в ней слово ERROR
-    if (strstr ( (char*)at_in, "OK") > 0) return AT_OK; // успешный ответ
-    if (strstr ( (char*)at_in, "ERROR") > 0) return AT_ERROR; // обнаружена ошибка
+    if (strstr ( (char*)at_in, "OK")    > 0 )   return AT_OK;           // успешный ответ
+    if (strstr ( (char*)at_in, "ERROR") > 0 )   return AT_ERROR;        // обнаружена ошибка
+    if (strstr ( (char*)at_in, "+CDS:") > 0 )   return AT_CDS;          // отчет о доставке
     
     if (at_in[0] == 0x00 ) return AT_NOANSWER; // ??? если нет ответа. не уверен что будет так работать нормально. Нужно проверить 
     return AT_UNDEFINED; // нет ответа или в ответе нет ни Error ни Ok
   }
 
+uint32_t CNT_GSM_GetDigitFromATIN (uint16_t position) // получение цифрового значения из строки ответа модуля жсм, начиная с заданной позиции
+  {
+    return (atoi((char const*)&at_in[position]));
+  }
 

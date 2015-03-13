@@ -1,17 +1,15 @@
 // counter MEMORY management
 
 #include "Counter_Memory.h"
-
-
+#include <string.h> 
 
 // Буфер в еепром для хранения лога
-#define EEPROM_LOG_BUFFER_SIZE 512 // размер буфера
+
 volatile uint8_t    eeprom_buffer[EEPROM_LOG_BUFFER_SIZE];
 volatile uint16_t   eeprom_wr_index=0, //индекс хвоста буфера (куда писать данные)
                     eeprom_rd_index=0, //индекс начала буфера (откуда читать данные)
                     eeprom_counter=0; //количество данных в буфере 
 volatile uint8_t    eeprom_buffer_overflow=0; //информация о переполнении буфера
-
 
 
 
@@ -34,8 +32,6 @@ uint8_t CNT_MEM_WritePhoneToEEPROM (unsigned char* phone) // store phone in eepr
 }
 
 
-
-
 uint8_t CNT_MEM_SetPhoneFromEEPROM (unsigned char* phone) // read phone from EEPROM and set to use
 {
   uint32_t eepoint; // addres
@@ -53,8 +49,6 @@ uint8_t CNT_MEM_SetPhoneFromEEPROM (unsigned char* phone) // read phone from EEP
 
 
 
-
-
 // добавить строчку в еепром - лог отладки
 void CNT_Misc_AddStringToEEPROMLog (unsigned char * logstring) 
 {
@@ -62,6 +56,9 @@ void CNT_Misc_AddStringToEEPROMLog (unsigned char * logstring)
     
     
     l= strlen(logstring); // найдем длину строки, которую собираемся добавить в еепром
+    
+    
+    
     
     
     

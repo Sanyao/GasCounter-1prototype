@@ -149,7 +149,7 @@ uint8_t get_char(void) //прием данных - один символ
 {
   uint8_t data; //переменная для данных
   int32_t waitingtime; // для таймаута
-  waitingtime = 1000000;
+  waitingtime = 500000;
   while ( (rx_counter==0) && (waitingtime-- != 0)   );  //если данных нет, ждем
   if (waitingtime <=0 ) return 0;  // стоп на таймауте
   data=rx_buffer[rx_rd_index++]; //берем данные из буфера

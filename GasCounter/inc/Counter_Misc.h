@@ -5,7 +5,9 @@
 #ifndef __GCOUNTER_MISC_H
 #define __GCOUNTER_MISC_H
 
-#define CLOCKFREQUENCY  1000000
+#include "Counter_GPIO_define.h"
+
+//#define CLOCKFREQUENCY  1000000
 
 
 /* define STATES for modes description*/
@@ -31,6 +33,7 @@ uint8_t CNT_DummyDelayLP_TO(uint32_t ms) ; // delay with timeout
 void itoa(int32_t n, unsigned char* s); // int tostring conversion
 void reverse(unsigned char* s);
 void concat(unsigned char* dest, unsigned char* src); // string concatenate
+void CMT_Misc_LEDIndication(uint8_t LEDNo, uint8_t first, uint8_t second, uint8_t third); // три вспышки светодиодом
 
 
 

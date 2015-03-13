@@ -56,9 +56,11 @@ int main()
   __enable_irq();                       // global enable interrupts
      needTX=ON; 
      needTX_Alarm = ON;  // test alarm sms
-     GPIO_HIGH(LED_PORT,LED2_PIN); // LED for info
-     CNT_DummyDelay(500000);  //for sleep unchange ^) // first set
-     GPIO_LOW(LED_PORT,LED2_PIN); // LED for info
+                             // отморгнем начало
+                                  CMT_Misc_LEDIndication(2, 5, 0, 0);
+                                  GPIO_LOW(LED_PORT,LED1_PIN); // погасим первый            
+                                  
+                              
   
   DBGMCU_Config(DBGMCU_STOP, ENABLE);  
     DBGMCU_Config(DBGMCU_SLEEP, ENABLE);  

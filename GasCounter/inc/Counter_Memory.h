@@ -9,8 +9,15 @@
 
 #define         EEPROM_BASE_ADDRES      0x08080000 // start eeprom
 #define         EERPOM_PHONE_OFFSET     0x00
-#define         EEPROM_PULSE1_OFFSET    0x64
+#define         EEPROM_PULSE_OFFSET     0x64 // смещение для расположения резервных значений счетчика импульсов /алармов еще каких то значений. 50 байт
+#define         EEPROM_LOG_OFFSET       0x96 // начало лога
 
+#define EEPROM_LOG_BUFFER_SIZE 512 // размер буфера лога - 512 байт
+
+/* формат лога в еепроме:
+хз... придкмать надо
+
+*/
 
 
 

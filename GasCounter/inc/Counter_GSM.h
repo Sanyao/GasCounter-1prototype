@@ -13,6 +13,10 @@
 #include "Counter_UART.h"
 #include "Counter_PwrMgmt.h"
 
+/* позиции для получения цисловых значений из строки приема из модуля жсм */
+#define SMSIDCMGS       8 // позиция в +CMSG после которой идет номер смс
+#define SMSIDCDS        11 // позиция номера смс в отчете о доставке +CDS
+
 
 #define DYMMYPWRKEYWIDTH 3000000
 #define DEFPHONENUMBER  "\"+79853520273\",145"
@@ -23,10 +27,12 @@
 
 typedef enum
 {                              // для парсинга ответов от жсм. 
-     AT_ERROR      =       0x00, /*!< answer error from module */
-     AT_OK         =       0x01, /*!< answer OK from module */
-     AT_UNDEFINED  =       0x02,  // в ответе нет ни Error ни OK или нет ответа
-     AT_NOANSWER   =       0x04       
+     AT_NULL       =       0x00,
+     AT_ERROR      =       0x01, /*!< answer error from module */
+     AT_OK         =       0x02, /*!< answer OK from module */
+     AT_UNDEFINED  =       0x03,  // в ответе нет ни Error ни OK или нет ответа
+     AT_NOANSWER   =       0x04,
+     AT_CDS        =       0x05         // ответ отчета о доставке с началос +CDS
 }AT_Answer;
 
 
@@ -69,7 +75,7 @@ uint16_t CNT_GSM_Module_ON      (void); // GSM power On - return on for normal o
 void     CNT_GSM_Module_OFF     (void);// GSM module power OFF
 uint16_t CNT_GSM_SendDefaultSMS (void);
 uint16_t CNT_GSM_SendAlarmSMS   (void);
-
+uint32_t CNT_GSM_GetDigitFromATIN (uint16_t position); // получение цифрового значения из строки ответа модуля жсм, начиная с заданной позиции
 
 
 

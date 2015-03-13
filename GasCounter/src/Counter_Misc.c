@@ -3,9 +3,6 @@
 
 
 
-
-
-
 void CNT_DummyDelay(uint32_t tensnops)
 { uint32_t i;   
   for (i=0; i<tensnops; i++) { __NOP();// __NOP(); __NOP(); 
@@ -96,9 +93,23 @@ void concat(unsigned char* dest, unsigned char* src) // string concatenate !!! w
 
 
                               
+void CMT_Misc_LEDIndication(uint8_t LEDNo, uint8_t first, uint8_t second, uint8_t third  ) // три вспышки светодиодом
+{ // firs, second, third = длительность. 0=не мигать, 1 = короткий, 2=длинее ... 
+
+  if (LEDNo == 1) {
+        GPIO_HIGH(LED_PORT,LED1_PIN); CNT_DummyDelay(first  * 100000); GPIO_LOW(LED_PORT,LED1_PIN); CNT_DummyDelay(170000); // 
+        GPIO_HIGH(LED_PORT,LED1_PIN); CNT_DummyDelay(second * 100000); GPIO_LOW(LED_PORT,LED1_PIN); CNT_DummyDelay(170000); // 
+        GPIO_HIGH(LED_PORT,LED1_PIN); CNT_DummyDelay(third  * 100000); GPIO_LOW(LED_PORT,LED1_PIN); CNT_DummyDelay(170000); //   
+                  }
+  if (LEDNo == 2) {
+        GPIO_HIGH(LED_PORT,LED2_PIN); CNT_DummyDelay(first  * 100000); GPIO_LOW(LED_PORT,LED2_PIN); CNT_DummyDelay(170000); // 
+        GPIO_HIGH(LED_PORT,LED2_PIN); CNT_DummyDelay(second * 100000); GPIO_LOW(LED_PORT,LED2_PIN); CNT_DummyDelay(170000); // 
+        GPIO_HIGH(LED_PORT,LED2_PIN); CNT_DummyDelay(third  * 100000); GPIO_LOW(LED_PORT,LED2_PIN); CNT_DummyDelay(170000); //   
+                  }
+
+}
                               
-                              
-                              
+
                               
                               
                               

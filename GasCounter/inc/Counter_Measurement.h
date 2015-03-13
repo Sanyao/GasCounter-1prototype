@@ -7,6 +7,8 @@
 
 #include "Counter_GPIO_define.h"
 #include "Counter_Misc.h"
+#include "Counter_GSM.h"
+
 
 //#include "main.h" // for global vars
 
