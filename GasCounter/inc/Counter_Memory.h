@@ -25,6 +25,8 @@
 // use 'phone' with special symbol - example ----"\"+79853520273\",145"---- 
 uint8_t CNT_MEM_WritePhoneToEEPROM(unsigned char* phone); // store phone in eeprom
 uint8_t CNT_MEM_SetPhoneFromEEPROM(unsigned char* phone); // read phone from EEPROM and set to use
+uint8_t CNT_MEM_WritePulsesToEEPROM (); // store backup pulses in eeprom
+uint8_t CNT_MEM_ReadPulsesFromEEPROM (); // retrieve backup pulses from eeprom
 
 
 

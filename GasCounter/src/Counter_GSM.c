@@ -85,17 +85,18 @@ uint16_t CNT_GSM_PutSMS(unsigned char* phone, unsigned char* smstext)  // подать
         uint32_t waitingtime; 
         uint16_t smsID = 0; // ID номер смс, присваиваемый при отправке. передаается в ответе +CMGS
         AT_Answer AnswerStringResult = AT_NULL;
+        uint16_t registered = OFF;
         //uint16_t i;
         
         if (CNT_GSM_Module_ON()== ON) 
      { // CNT_UART_state (ON); перенес во включение бустера
           
           put_atcmd("AT");
-          CNT_DummyDelay(10000); // delay x10 nops - debug
+          CNT_DummyDelay(20000); // delay x10 nops - debug
           AnswerStringResult = CNT_GSM_GetAnswer();
         
           put_atcmd("ATE0");
-          CNT_DummyDelay(10000); // delay x10 nops - debug
+          CNT_DummyDelay(20000); // delay x10 nops - debug
           AnswerStringResult = CNT_GSM_GetAnswer();
         
           /*put_atcmd("AT+GSV"); // simcom info
@@ -118,15 +119,27 @@ uint16_t CNT_GSM_PutSMS(unsigned char* phone, unsigned char* smstext)  // подать
                 
           put_atcmd("AT+CBC");  // read supply voltage Voltgsm
           CNT_GetVoltages();
-          CNT_DummyDelay(10000); // delay x10 nops - debug
+          CNT_DummyDelay(50000); // delay x10 nops - debug
           AnswerStringResult = CNT_GSM_GetAnswer();
           CNT_MGMT_GetRAIN(); // get adc correction
           CNT_GetVoltages(); 
           CNT_GPIO_CheckChannel();   // check channel circuit
                 
-          put_atcmd("AT+CREG?");  // registered in network? !!! нужна проверка и ожидание регистрации в сети
-          CNT_DummyDelay(10000); // delay x10 nops - debug
-          AnswerStringResult = CNT_GSM_GetAnswer();
+         
+          waitingtime = 350; // ожидаем регистрацию в сети где то минуту
+          registered = OFF;
+          while ( (registered == OFF) && (waitingtime-- > 0) ) 
+              {
+                  put_atcmd("AT+CREG?");  // registered in network? !!! нужна проверка и ожидание регистрации в сети
+                  CNT_DummyDelay(50000); // delay x10 nops - debug
+                  AnswerStringResult = CNT_GSM_GetAnswer();
+                  if (AnswerStringResult == AT_OK) // если модуль отвечает
+                    if (strstr ( (char*)at_in, "+CREG: 0,1") > 0) registered = ON; // проверим наличие регистрации
+                  if ((AnswerStringResult == AT_ERROR) || (AnswerStringResult == AT_NOANSWER)) 
+                    break; // иначе прекратим цикл ожидания  
+                  
+              }
+          if (registered==OFF) return result; // если нет регистрации  выйдем из всей процедуры с возвратом OFF
         
           put_atcmd("AT+CSQ");   // Signal Quality?
           CNT_DummyDelay(10000); // delay x10 nops - debug
@@ -144,6 +157,9 @@ uint16_t CNT_GSM_PutSMS(unsigned char* phone, unsigned char* smstext)  // подать
           CNT_DummyDelay(100000); // delay x10 nops - debug
           AnswerStringResult = CNT_GSM_GetAnswer();
 
+          
+          
+          
         
           put_atcmd("AT+CMGD=1,4");  // delete !!!ALL!!! SMS from sim
           CNT_DummyDelay(100000); // delay x10 nops - debug
@@ -202,7 +218,7 @@ uint16_t CNT_GSM_PutSMS(unsigned char* phone, unsigned char* smstext)  // подать
           GPIO_HIGH(LED_PORT,LED2_PIN); // отправили смс - зажжем второй светодиод************
           CNT_DummyDelay(100000); // delay x10 nops - debug
           
-          waitingtime = 10; // для передачи отправки смс в сеть
+          waitingtime = 15; // для передачи отправки смс в сеть
           while ( waitingtime-- > 1 ) // ждем положительного ответа после отправки смс в сеть или ошибки
             {   AnswerStringResult = CNT_GSM_GetAnswer();
                 if (AnswerStringResult==AT_ERROR) break;
@@ -213,11 +229,11 @@ uint16_t CNT_GSM_PutSMS(unsigned char* phone, unsigned char* smstext)  // подать
                   }
             }
           
-          waitingtime = 100; // wait delivery report
+          waitingtime = 30; // wait delivery report
           while ((waitingtime-- >0) && (result==OFF) && (Volt_INSTR>VOLTIONISTROFF) ) // пока не передано не таймаут и хватает напряжения 
           {     CNT_GetVoltages();
                 //CNT_DummyDelay(2000); // delay x10 nops - debug
-                if (CNT_GSM_GetAnswer() == AT_CDS)   // проверим, есть ли сообщение о доставке check +CDS receiving - sms delivery report
+                if (CNT_GSM_GetAnswer() == AT_CDS)   // ждем и проверяем, есть ли сообщение о доставке check +CDS receiving - sms delivery report
                    if (smsID ==  CNT_GSM_GetDigitFromATIN(SMSIDCDS) )  // для обновления времени  проверим номер смс, взятый из CMGS
                         { CNT_TIME_SetTimeFromSMSDeliveryReport(); // если доставка есть, скорректируем врямя из сообщения о доставке 
                                     //!!!!!!!! отправка может же быть и неуспешной. придет ли отгда CDS или будет таймаут, надо проверить!!!!!!! 
@@ -346,7 +362,7 @@ uint16_t CNT_GSM_SendAlarmSMS   (void)  // immediatelly charge battery and send 
 }
 
 
-// парсинг ответов от SIM900R ------------------ пока в разработке. не используется.
+// простой парсинг ответов от SIM900R по типам
 AT_Answer CNT_GSM_GetAnswer()    // ожидание ответа от модул и возврат error Ok и т.д.
   {
     get_string(); // ждем строку ответа от жсм модуля.
@@ -358,6 +374,7 @@ AT_Answer CNT_GSM_GetAnswer()    // ожидание ответа от модул и возврат error Ok 
     if (at_in[0] == 0x00 ) return AT_NOANSWER; // ??? если нет ответа. не уверен что будет так работать нормально. Нужно проверить 
     return AT_UNDEFINED; // нет ответа или в ответе нет ни Error ни Ok
   }
+
 
 uint32_t CNT_GSM_GetDigitFromATIN (uint16_t position) // получение цифрового значения из строки ответа модуля жсм, начиная с заданной позиции
   {

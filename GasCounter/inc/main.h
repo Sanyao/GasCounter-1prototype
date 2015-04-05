@@ -31,6 +31,9 @@
 #define VOLTIONISTROFF 1800 // предполагаем минимальное значение на ионисторе при котором еще возможна работа. ниже- отключаем и сброс.
 
 
+#define NUMOFPULSECHANNELS 4 // количество каналов импульсов
+#define NUMOFALARMCHANNELS 8 // количество каналов аларма
+
 extern unsigned char at_out[MAX_AT_SIZE];
 extern unsigned char at_in[MAX_AT_SIZE];
 

@@ -9,9 +9,14 @@ volatile unsigned char* sms = "default SMS. maxlength = 64 symbols. rezerve area
 uint32_t Pulse1Overall;
 uint32_t Pulse2Overall;
 uint32_t Pulse3Overall;
+uint32_t Pulse4Overall;
 uint32_t Pulse1Current;
 uint32_t Pulse2Current;
 uint32_t Pulse3Current;
+uint32_t Pulse4Current;
+
+uint32_t PulsesOverall[NUMOFPULSECHANNELS];
+uint32_t AlarmsOverall[NUMOFALARMCHANNELS];
 
 uint32_t Alarms1Count =0;
 uint32_t Alarms2Count =0;

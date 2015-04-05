@@ -9,7 +9,7 @@ TriggerName=main
 LimitSize=0
 ByteLimit=50
 [DebugChecksum]
-Checksum=-482834260
+Checksum=-1966140183
 [Exceptions]
 StopOnUncaught=_ 0
 StopOnThrow=_ 0
@@ -109,8 +109,10 @@ Exclusions=
 [Disassemble mode]
 mode=0
 [Breakpoints2]
-Bp0=_ 1 "EMUL_CODE" "{$PROJ_DIR$\src\Counter_GSM.c}.236.17" 0 0 1 "" 0 "" 0
-Count=1
+Bp0=_ 1 "EMUL_CODE" "{$PROJ_DIR$\src\Counter_GSM.c}.129.11" 0 0 1 "" 0 "" 0
+Bp1=_ 1 "EMUL_CODE" "{$PROJ_DIR$\src\Counter_GSM.c}.148.11" 0 0 1 "" 0 "" 0
+Bp2=_ 1 "EMUL_CODE" "{$PROJ_DIR$\src\Counter_GSM.c}.142.11" 0 0 1 "" 0 "" 0
+Count=3
 [Aliases]
 A0=_ "D:\Sanyao\RemoteStorage\Google Диск\IAR System Projects\GasCounter\ext_src\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_gpio.c" ""
 A1=_ "D:\Sanyao\RemoteStorage\Google Диск\IAR System Projects\GasCounter\ext_src\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_rcc.c" ""

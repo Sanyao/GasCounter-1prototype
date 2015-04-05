@@ -11,7 +11,8 @@ volatile uint16_t   eeprom_wr_index=0, //индекс хвоста буфера (куда писать данны
                     eeprom_counter=0; //количество данных в буфере 
 volatile uint8_t    eeprom_buffer_overflow=0; //информация о переполнении буфера
 
-
+extern uint32_t PulsesOverall[NUMOFPULSECHANNELS];
+extern uint32_t AlarmsOverall[NUMOFALARMCHANNELS];
 
 
 uint8_t CNT_MEM_WritePhoneToEEPROM (unsigned char* phone) // store phone in eeprom
@@ -43,9 +44,45 @@ uint8_t CNT_MEM_SetPhoneFromEEPROM (unsigned char* phone) // read phone from EEP
     { *phone++  = symbol;
       symbol  = *(__IO uint8_t *)eepoint++; 
     }
-  
   return 1;
 }
+
+
+
+uint8_t CNT_MEM_WritePulsesToEEPROM () // store pulses backup in eeprom
+{
+  uint32_t eepoint;
+  uint8_t i;
+  FLASH_Status result; 
+  /* используем PulsesOverall[NUMOFPULSECHANNELS] и AlarmsOverall[NUMOFALARMCHANNELS] */
+  eepoint = EEPROM_PULSE_OFFSET;
+  DATA_EEPROM_Unlock();
+  DATA_EEPROM_FixedTimeProgramCmd(ENABLE);
+  i = NUMOFPULSECHANNELS;
+  while (i-- > 0) 
+    { result = DATA_EEPROM_ProgramWord(eepoint,PulsesOverall[i]); // пишем импульсы
+      eepoint += 4; // прибавляем 4 к адресу т.к. данный 32х разрядные
+    }
+  
+  i = NUMOFALARMCHANNELS;
+  while (i-- > 0) 
+    { result = DATA_EEPROM_ProgramWord(eepoint,AlarmsOverall[i]); // пишем алармы
+      eepoint += 4; // прибавляем 4 к адресу т.к. данный 32х разрядные
+    }  
+  DATA_EEPROM_Lock();
+  return result;
+}
+
+
+uint8_t CNT_MEM_ReadPulsesFromEEPROM () // retrieve backup pulses from eeprom
+{
+  
+  
+  
+}
+
+
+
 
 
 
