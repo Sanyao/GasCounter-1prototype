@@ -15,7 +15,7 @@ extern uint32_t PulsesOverall[NUMOFPULSECHANNELS];
 extern uint32_t AlarmsOverall[NUMOFALARMCHANNELS];
 
 
-uint8_t CNT_MEM_WritePhoneToEEPROM (unsigned char* phone) // store phone in eeprom
+uint8_t CNT_MEM_WritePhoneToEEPROM (unsigned char* phone) // store phone in eeprom - old wersion-only one phone
 {
   uint32_t eepoint; // addres
   FLASH_Status result; 
@@ -28,9 +28,41 @@ uint8_t CNT_MEM_WritePhoneToEEPROM (unsigned char* phone) // store phone in eepr
       result = DATA_EEPROM_ProgramByte(eepoint++, *phone++);
     }
   DATA_EEPROM_ProgramByte(eepoint++, 0xFF);
+  
   DATA_EEPROM_Lock();
   return result;
 }
+
+
+uint8_t CNT_MEM_Write2PhoneToEEPROM (unsigned char* phone1, unsigned char* phone2) // store two phones in eeprom
+{
+  uint32_t eepoint; // addres
+  FLASH_Status result; 
+  eepoint = EEPROM_BASE_ADDRES + EERPOM_PHONE1_OFFSET; // запишем в еепром первый номер
+  DATA_EEPROM_Unlock();
+  DATA_EEPROM_FixedTimeProgramCmd(ENABLE);
+  while (*phone1 != 0)
+    { 
+      //DATA_EEPROM_EraseByte(eepoint);
+      result = DATA_EEPROM_ProgramByte(eepoint++, *phone1++);
+    }
+  DATA_EEPROM_ProgramByte(eepoint++, 0xFF);
+  
+  eepoint = EEPROM_BASE_ADDRES + EERPOM_PHONE2_OFFSET; // запишем в еепром второй номер
+  DATA_EEPROM_Unlock();
+  DATA_EEPROM_FixedTimeProgramCmd(ENABLE);
+  while (*phone2 != 0)
+    { 
+      //DATA_EEPROM_EraseByte(eepoint);
+      result = DATA_EEPROM_ProgramByte(eepoint++, *phone2++);
+    }
+  DATA_EEPROM_ProgramByte(eepoint++, 0xFF);
+      
+  DATA_EEPROM_Lock();
+  return result;
+}
+
+
 
 
 uint8_t CNT_MEM_SetPhoneFromEEPROM (unsigned char* phone) // read phone from EEPROM and set to use
@@ -47,6 +79,24 @@ uint8_t CNT_MEM_SetPhoneFromEEPROM (unsigned char* phone) // read phone from EEP
   return 1;
 }
 
+uint8_t CNT_MEM_Set2PhoneFromEEPROM (unsigned char* phone1, unsigned char* phone2) // read TWO phoneS from EEPROM and set to use
+{
+  uint32_t eepoint; // addres
+  uint8_t symbol;
+  eepoint = EEPROM_BASE_ADDRES + EERPOM_PHONE1_OFFSET;
+  symbol  = *(__IO uint8_t *)eepoint++;
+  while (symbol != 0xFF)
+    { *phone1++  = symbol;
+      symbol  = *(__IO uint8_t *)eepoint++; 
+    }
+  eepoint = EEPROM_BASE_ADDRES + EERPOM_PHONE2_OFFSET;
+  symbol  = *(__IO uint8_t *)eepoint++;
+  while (symbol != 0xFF)
+    { *phone2++  = symbol;
+      symbol  = *(__IO uint8_t *)eepoint++; 
+    }
+  return 1;
+}
 
 
 uint8_t CNT_MEM_WritePulsesToEEPROM () // store pulses backup in eeprom

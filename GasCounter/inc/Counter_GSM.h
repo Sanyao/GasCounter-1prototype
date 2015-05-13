@@ -19,8 +19,11 @@
 
 
 #define DYMMYPWRKEYWIDTH 3000000
-#define DEFPHONENUMBER  "\"+79853520273\",145"
+
+#define DEFPHONENUMBER  "\"+79853520273\",145" // оставить для совместимости
+#define DEFPHONENUMBER1 "\"+79853520273\",145"
 #define DEFPHONENUMBER2 "\"+79036326317\",145"
+
 #define DEFWAITINGCOMMANDSMSTIME (uint16_t)60 // seconds
 
 
@@ -39,7 +42,8 @@ typedef enum
 // Variant for SMS
 #define SMSVAR_DEF              1       // default operational SMS
 #define SMSVAR_VarnLOWBATT      2       // SMS for low battery alarm - пока нет
-#define SMSVAR_Alarm            3       // alarm input active!
+#define SMSVAR_ALARM            3       // alarm input active!
+#define SMSVAR_CLOCK            4       // СМС по расписанию
 
 
  /* define external global variables */
@@ -75,18 +79,19 @@ uint16_t CNT_GSM_Module_ON      (void); // GSM power On - return on for normal o
 void     CNT_GSM_Module_OFF     (void);// GSM module power OFF
 uint16_t CNT_GSM_SendDefaultSMS (void);
 uint16_t CNT_GSM_SendAlarmSMS   (void);
+uint16_t CNT_GSM_SendClockSMS   (void); // посылка смс по расписанию
 uint32_t CNT_GSM_GetDigitFromATIN (uint16_t position); // получение цифрового значения из строки ответа модуля жсм, начиная с заданной позиции
 
 
 
 uint16_t CNT_GSM_PutSMS(unsigned char* phone, unsigned char* smstext);  // подать смс в буффер и отправить return on - off
+uint16_t CNT_GSM_Put2SMS(unsigned char* smstext);  // подать две смс - по обоим номерам хранимым в еепроме, в буффер и отправить return on - off
+
 void CNT_GSM_CreateSMSText(uint16_t variant);  // create various text for sms
 
-AT_Answer CNT_GSM_GetAnswer();    // ожидание ответа от модул и возврат error Ok
+AT_Answer CNT_GSM_GetAnswer(void);    // ожидание ответа от модул и возврат error Ok (тип At_Answer)
+uint16_t CNT_GSM_OnAndRegister(void);  // включить модуль и зарегится в сети
 
-
-
-
-
+uint16_t CNT_GSM_TransmitSMSToOPSOS(unsigned char* smstext, unsigned char* phone); // отдадим СМС ОПСОСу и вернем ID смски 
 
 #endif /* __GCOUNTER_GSM_H*/

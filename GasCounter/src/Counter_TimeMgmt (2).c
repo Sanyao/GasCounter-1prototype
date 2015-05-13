@@ -9,13 +9,13 @@ RTC_AlarmTypeDef alarm;
 EXTI_InitTypeDef exti;
 NVIC_InitTypeDef NVIC_InitStructure;
 EXTI_InitTypeDef exticonf;
-
-RTC_AlarmTypeDef alarmstruct;
 //EXTIMode_TypeDef extimode;
 //EXTITrigger_TypeDef extitrig;
 
 void CNT_First_Set_RTC (void)
 {
+
+    
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
     PWR_RTCAccessCmd(ENABLE);
     //RCC_BackupResetCmd(ENABLE);
@@ -36,9 +36,10 @@ void CNT_First_Set_RTC (void)
     CNT_Set_RTC_Date(CZEROWEEKDAY, CZERODAY, CZEROMONTH, CZEROYEAR);
     CNT_RTC_SetWakeUpPeriod(CZEROWKUP); // настройка просыпаться по периоду
     
-    CNT_RTC_SetAlarmATime(CZEROALARMHOUR,CZEROALARMMIN, CZEROALARMSEC );  // настройка просыпаться в заданное время ежедневно по умолчанию в 10:00
-    NVIC_EnableIRQ(RTC_WKUP_IRQn);        // enable rtc wkup interrupt
-    NVIC_EnableIRQ(RTC_Alarm_IRQn);        // enable RTC Alarms  interrupt
+    
+    CNT_RTC_SetAlarmATime(CZEROALARMHOUR,CZEROALARMMIN, CZEROALARMSEC );  // настройка просыпаться в заданное время ежедневно
+    
+    
 }
 
 ErrorStatus CNT_Set_RTC_Time (uint8_t hours, uint8_t minutes, uint8_t seconds)
@@ -108,7 +109,8 @@ ErrorStatus CNT_RTC_SetWakeUpPeriod(uint32_t WakeUpPeriodSeconds)
 ErrorStatus CNT_RTC_SetAlarmATime(uint8_t hours, uint8_t minutes, uint8_t seconds)  // настройка просыпаться в заданное время ежедневно
 {
   
-  RTC_WriteProtectionCmd(DISABLE);
+  RTC_AlarmTypeDef* RTC_AlarmStruct;
+    
   RTC_ITConfig(RTC_IT_ALRA, DISABLE); // выключим прерывание
   RTC_AlarmCmd(RTC_Alarm_A, DISABLE); // отключим будильник А
   CNT_RTC_ClearAlarmAFlags(); // сборос флагов аларм А - будильник
@@ -118,30 +120,29 @@ ErrorStatus CNT_RTC_SetAlarmATime(uint8_t hours, uint8_t minutes, uint8_t second
   exticonf.EXTI_Trigger = EXTI_Trigger_Rising;
   exticonf.EXTI_LineCmd = ENABLE;
   EXTI_Init(&exticonf); 
+
   
-    time.RTC_H12 = RTC_HourFormat_24;
-    time.RTC_Hours = hours;
-    time.RTC_Minutes = minutes;
-    time.RTC_Seconds = seconds;
+  time.RTC_H12 = RTC_HourFormat_24;
+  time.RTC_Hours = hours;
+  time.RTC_Minutes = minutes;
+  time.RTC_Seconds = seconds;
   
-  alarmstruct.RTC_AlarmTime = time; // время будильника
-  alarmstruct.RTC_AlarmMask = RTC_AlarmMask_DateWeekDay; // маска на дни недели и дату - т.е. будет каждый день
-  alarmstruct.RTC_AlarmDateWeekDaySel = 0;
-  alarmstruct.RTC_AlarmDateWeekDay = RTC_Weekday_Monday; // типа по понедельникам. Но маской должно закрыться.  
-  //RTC_AlarmStructInit(&alarmstruct);
+  RTC_AlarmStruct.RTC_AlarmTime = time; // время будильника
+  RTC_AlarmStruct.RTC_AlarmMask = RTC_AlarmMask_DateWeekDay; // маска на дни недели и дату - т.е. будет каждый день
+  RTC_AlarmStruct.RTC_AlarmDateWeekDaySel = 0;
+  RTC_AlarmStruct.RTC_AlarmDateWeekDay = RTC_Weekday_Monday; // типа по понедельникам. Но маской должно закрыться.  
+
    
-  RTC_SetAlarm(RTC_Format_BIN, RTC_Alarm_A, &alarmstruct);
+  RTC_SetAlarm(RTC_Format_BIN, RTC_Alarm_A, RTC_AlarmStruct);
   
   
   RTC_ITConfig(RTC_IT_ALRA, ENABLE);
-  
-   // RTC_WriteProtectionCmd(ENABLE);      
-  
-  return RTC_AlarmCmd(RTC_Alarm_A, ENABLE); // Включим будильник А
-
-
+  return RTC_WakeUpCmd(ENABLE);
 }
   
+
+
+
 
 
 
@@ -179,6 +180,8 @@ void CNT_Time_LPSLEEPms(uint32_t ms) // спим сколько то миллисекунд
    
     
     TIM_Cmd(TIM9, ENABLE);                      // Включение таймера
+  
+  
   
 }
 
@@ -237,9 +240,6 @@ void CNT_TIME_SetTimeFromSMSDeliveryReport(void) // Set time from SMS Delivery R
     
     RTC_SetTime(RTC_Format_BIN, &time);  // init RTC time
     RTC_SetDate(RTC_Format_BIN, &date);
-    
-   // CNT_RTC_SetAlarmATime(time.RTC_Hours, time.RTC_Minutes+1, time.RTC_Seconds);  // настройка просыпаться через минуту. для отладки.
-    
 }
 
 
