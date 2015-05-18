@@ -38,6 +38,12 @@
 #define PLSCMN_PIN      GPIO_Pin_3
 #define AL1_PIN         GPIO_Pin_4
 #define AL2_PIN         GPIO_Pin_5
+#define AL3_PIN         GPIO_Pin_7
+#define AL4_PIN         GPIO_Pin_8
+#define AL5_PIN         GPIO_Pin_9
+#define AL6_PIN         GPIO_Pin_10
+#define AL7_PIN         GPIO_Pin_11
+#define AL8_PIN         GPIO_Pin_12
 #define ALCMN_PIN       GPIO_Pin_6
 #define PLS1_CHAN       ADC_Channel_10
 #define PLS2_CHAN       ADC_Channel_11

@@ -30,6 +30,8 @@ void  CNT_GPIO_RetFromStop(void); // return GPIO after stop mode
 
 void CNT_GPIO_CheckChannel(void); // check channel circuit
 
+unsigned char* CNT_GPIO_GetChannelsStatus (void); // вернет увказатель на строку с состоянием каналов "01010001110000" - для всех каналов и аларм и счетчик
+
 
 
 #endif /* __GCOUNTER_GPIOUTILS_H*/

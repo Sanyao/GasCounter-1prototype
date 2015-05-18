@@ -417,7 +417,25 @@ void CNT_GPIO_CheckChannel(void)   // check channel circuit
 
 
 
-
+unsigned char* CNT_GPIO_GetChannelsStatus (void) // вернет увказатель на строку с состоянием каналов "01010001110000" - для всех каналов и аларм и счетчик
+{
+  static unsigned char chanstate[14] = "00000000000000"; // строка с состоянием каналов 
+  uint16_t i=0; // счетчик для перебора 
+  
+  if (GPIO_ReadInputDataBit(EXT_PORT, PLS1_PIN) == 1) chanstate[i] = '1'; i++;
+  if (GPIO_ReadInputDataBit(EXT_PORT, PLS2_PIN) == 1) chanstate[i] = '1'; i++;
+  if (GPIO_ReadInputDataBit(EXT_PORT, PLS3_PIN) == 1) chanstate[i] = '1'; i++;
+  if (GPIO_ReadInputDataBit(EXT_PORT, AL1_PIN) == 1) chanstate[i] = '1'; i++;  
+  if (GPIO_ReadInputDataBit(EXT_PORT, AL2_PIN) == 1) chanstate[i] = '1'; i++;
+  if (GPIO_ReadInputDataBit(EXT_PORT, AL3_PIN) == 1) chanstate[i] = '1'; i++;
+  if (GPIO_ReadInputDataBit(EXT_PORT, AL4_PIN) == 1) chanstate[i] = '1'; i++;  
+  if (GPIO_ReadInputDataBit(EXT_PORT, AL5_PIN) == 1) chanstate[i] = '1'; i++;  
+  if (GPIO_ReadInputDataBit(EXT_PORT, AL6_PIN) == 1) chanstate[i] = '1'; i++; 
+  if (GPIO_ReadInputDataBit(EXT_PORT, AL7_PIN) == 1) chanstate[i] = '1'; i++;  
+  if (GPIO_ReadInputDataBit(EXT_PORT, AL8_PIN) == 1) chanstate[i] = '1'; i++;   
+  
+  return chanstate;
+}
 
 
 

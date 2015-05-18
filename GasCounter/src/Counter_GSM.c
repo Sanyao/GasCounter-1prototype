@@ -246,12 +246,13 @@ void CNT_GSM_CreateSMSText(uint16_t variant)
   unsigned char  comma[] = ", ";
   unsigned char  twopo[] = ":";
   unsigned char  slash[] = "/";  
-  unsigned char alcnt[] = "Alarms: ";
-  unsigned char vlts[] = "V(VLIGS)=";
+  unsigned char alcnt[] = "Alr: ";
+  unsigned char chstat[] = "Sts: ";
+  unsigned char vlts[] = "VLIGS=";
   unsigned char tmps[] = "T=";
-  unsigned char head[] = "CNT Online. Pulses= "; // ѕ≈–»ќƒ»„≈— јя —ћ—
-  unsigned char headalarm[] = "CNT ALARM! Pulses="; // смс по аларму
-  unsigned char headclock[] = "CNT Clock. Pulses= "; // смс по расписанию
+  unsigned char head[] = "CNT Online. Pls= "; // ѕ≈–»ќƒ»„≈— јя —ћ—
+  unsigned char headalarm[] = "CNT ALARM! Pls="; // смс по аларму
+  unsigned char headclock[] = "CNT Clock. Pls= "; // смс по расписанию
   unsigned char openshort[] = "Ch open/short = ";
   
         smstext[0] = '\0';
@@ -266,7 +267,7 @@ void CNT_GSM_CreateSMSText(uint16_t variant)
         itoa(hours, hs1); concat(smstext, hs1); concat(smstext, twopo); 
         itoa(minutes, hs1); concat(smstext, hs1); concat(smstext, twopo);
         itoa(seconds, hs1); concat(smstext, hs1); concat(smstext, comma);
-        itoa(SMS_Counter, hs1); concat(smstext, hs1); concat(smstext, comma);
+        itoa(SMS_Counter, hs1); concat(smstext, hs1); concat(smstext, comma); // счетчик смс
         
    switch (variant)
    {
@@ -285,16 +286,20 @@ void CNT_GSM_CreateSMSText(uint16_t variant)
         break;
     }
    }
-
+                // количество импульсов
         itoa(Pulse1Overall, hs1); concat(smstext, hs1); concat(smstext, slash);
         itoa(Pulse2Overall, hs1); concat(smstext, hs1); concat(smstext, slash);
         itoa(Pulse3Overall, hs1); concat(smstext, hs1); concat(smstext, comma);
 
-        concat(smstext, alcnt);
+        concat(smstext, alcnt); // количество алармов
         itoa(Alarms1Count, hs1); concat(smstext, hs1); concat(smstext, slash);
         itoa(Alarms2Count, hs1); concat(smstext, hs1); concat(smstext, comma);
         
-        concat(smstext, vlts);
+        concat(smstext, chstat); // инфа о состо€нии каналов
+        concat(smstext, CNT_GPIO_GetChannelsStatus()); concat(smstext, comma);
+        
+        
+        concat(smstext, vlts); // инфа о напр€жени€х
         itoa(Volt_VCC,   hs1); concat(smstext, hs1); concat(smstext, slash);
         itoa(Volt_LIBAT, hs1); concat(smstext, hs1); concat(smstext, slash);
         itoa(Volt_INSTR, hs1); concat(smstext, hs1); concat(smstext, slash);
